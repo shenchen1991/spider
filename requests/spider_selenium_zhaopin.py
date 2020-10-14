@@ -47,6 +47,12 @@ def get_city_jobs(url):
 
     chrome.find_element_by_class_name('zp-search__btn').click()
     time.sleep(0.5)
+    # 切换到浏览器第二个页签
+    chrome.switch_to.window(chrome.window_handles[1])
+    chrome.execute_script('var q=window.document.documentElement.scrollTop=1000')
+    time.sleep(2)
+    chrome.execute_script('var q=window.document.documentElement.scrollTop=2000')
+    time.sleep(0.2)
 
     ui.WebDriverWait(chrome, 60).until(
         expected_conditions.visibility_of_all_elements_located((By.CLASS_NAME, 'contentpile__content')))
@@ -58,9 +64,33 @@ def get_city_jobs(url):
     else:
         divs = chrome.find_elements_by_class_name('contentpile__content__wrapper')
         for div in divs:
-            job_info_url = div.find_element(By.XPATH,'.//a/@herf')
+            job_info_url = div.find_element(By.XPATH, './/a/@herf')
+
+
+def get_city_jobs2(url):
+    chrome.get(url)
+
+    chrome.find_element_by_class_name('zp-search__btn').click()
+    time.sleep(0.5)
+
+    ui.WebDriverWait(chrome, 60).until(
+        expected_conditions.visibility_of_all_elements_located((By.CLASS_NAME, 'contentpile__content')))
+
+    no_content = chrome.find_element_by_class_name('contentpile__jobcontent__noimg')
+
+    if not no_content:
+        print('当前城市未找到python岗位')
+    else:
+        divs = chrome.find_elements_by_class_name('contentpile__content__wrapper')
+        for div in divs:
+            job_info_url = div.find_element(By.XPATH, './/a/@herf')
+            print(job_info_url)
 
 
 if __name__ == '__main__':
+    query_cities = ('北京', '西安', '上海')
     for city in get_all_city():
-        get_city_jobs('https:' + city['url'])
+        if city['name'] in query_cities:
+            print(city)
+            get_city_jobs('https:' + city['url'])
+            # get_city_jobs2(f'https://sou.zhaopin.com/?jl={city["code"]}&kw=Python&kt=3')
