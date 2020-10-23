@@ -9,7 +9,7 @@ import scrapy
 
 
 class BookItem(scrapy.Item):
-    book_id = scrapy.Field
+    book_id = scrapy.Field()
     book_url = scrapy.Field()
     book_cover = scrapy.Field()
     book_name = scrapy.Field()
@@ -19,11 +19,17 @@ class BookItem(scrapy.Item):
 
 
 class JuanItem(scrapy.Item):
-    juan_id = scrapy.Field
-    title = scrapy.Field
+    juan_id = scrapy.Field()
+    title = scrapy.Field()
+    book_id = scrapy.Field
 
 
-class QidianItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class SegItem(scrapy.Item):
+    seg_id = scrapy.Field()
+    title = scrapy.Field()
+    juan_id = scrapy.Field()
+
+
+class SegDetail(scrapy.Item):
+    seg_id = scrapy.Field()
+    text = scrapy.Field()

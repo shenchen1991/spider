@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import uuid
+
 import scrapy
 from scrapy import Request
 from scrapy.http import Response
+
+from qidian.items import *
 
 
 # 创建项目命令
@@ -44,7 +48,8 @@ class WanbenSpider(scrapy.Spider):
             lis = response.css('.all-img-list li')
             print(f'------{len(lis)}-------------')
             for li in lis:
-                item = {}
+                item = BookItem()
+                item['book_id'] = uuid.uuid4().hex
                 a = li.xpath('./div[1]/a')
                 item['book_url'] = a.xpath('./@href').get()
                 item['book_cover'] = a.xpath('./img/@src').get()
@@ -52,10 +57,14 @@ class WanbenSpider(scrapy.Spider):
 
                 item['author'], *item['tags'] = li.css('.author a::text').extract()
                 item['summary'] = li.css('.intro::text').get()
-                yield item
 
                 # 请求小说的详情
-                yield Request('https:' + item['book_url'], callback=self.parse_info, priority=1)
+                yield Request('https:' + item['book_url'],
+                              callback=self.parse_info,
+                              priority=1,
+                              meta={'book_id': item['book_id']})
+
+                yield item
 
             # 获取下一页
             next_url = response.css('.lbf-pagination-item-list ').xpath('./li[last()]/a/@href').get()
@@ -63,4 +72,4 @@ class WanbenSpider(scrapy.Spider):
                 yield Request('https:' + next_url, priority=100)
 
     def parse_info(self, response: Response):
-        print('---------详情完事儿了---------------')
+        print('---------详情完事儿了---------------', response.meta['book_id'])
