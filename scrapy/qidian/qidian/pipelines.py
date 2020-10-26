@@ -7,17 +7,18 @@
 import os
 from csv import DictWriter
 
+from qidian.db import BaseDao
 from qidian.items import *
 
 
 class QidianPipeline(object):
     def __init__(self):
         self.book_csv = 'book.csv'
-        self.juan_csv = 'juan.csv'
         self.seg_csv = 'seg.csv'
+        self.seg_detail_csv = 'seg_detail.csv'
 
     def save_csv(self, item, filename):
-        has_header = os.path.exists(filename);
+        has_header = os.path.exists(filename)
         with open(filename, 'a', encoding='utf-8') as f:
             writer = DictWriter(f, fieldnames=item.keys())
             if not has_header:
@@ -27,6 +28,26 @@ class QidianPipeline(object):
     def process_item(self, item, spider):
         if isinstance(item, BookItem):
             self.save_csv(item, self.book_csv)
-        elif isinstance(item, JuanItem):
-            self.save_csv(item, self.juan_csv)
+        elif isinstance(item, SegItem):
+            self.save_csv(item, self.seg_csv)
+        elif isinstance(item, SegDetail):
+            self.save_csv(item, self.seg_detail_csv)
+        return item
+
+
+class DBPipeline(object):
+    def __init__(self):
+        self.dao = BaseDao()
+        self.book_table = 't_book'
+        self.seg_table = 't_seg'
+        self.seg_detail_table = 't_seg_detail'
+
+    def process_item(self, item, spider):
+        if isinstance(item, BookItem):
+            item['tags'] = '-'.join(item['tags'])
+            self.dao.save(self.book_table, **item)
+        elif isinstance(item, SegItem):
+            self.dao.save(self.seg_table, **item)
+        else:
+            self.dao.save(self.seg_detail_table, **item)
         return item

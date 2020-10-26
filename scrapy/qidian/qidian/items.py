@@ -25,11 +25,12 @@ class JuanItem(scrapy.Item):
 
 
 class SegItem(scrapy.Item):
+    book_id = scrapy.Field()
     seg_id = scrapy.Field()
     title = scrapy.Field()
-    juan_id = scrapy.Field()
+    url = scrapy.Field()
 
 
 class SegDetail(scrapy.Item):
     seg_id = scrapy.Field()
-    text = scrapy.Field()
+    content = scrapy.Field()

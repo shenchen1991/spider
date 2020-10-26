@@ -72,4 +72,27 @@ class WanbenSpider(scrapy.Spider):
                 yield Request('https:' + next_url, priority=100)
 
     def parse_info(self, response: Response):
-        print('---------详情完事儿了---------------', response.meta['book_id'])
+        print('---------详情完事儿了---------------')
+        book_id = response.meta['book_id']
+        seg_as = response.xpath('//div[@class="volume-wrap"]/div[position()>1]').css('.cf li>a')
+        for a in seg_as:
+            item = SegItem()
+            item['seg_id'] = uuid.uuid4().hex
+            item['book_id'] = book_id
+            item['title'] = a.css('::text').get()
+            item['url'] = 'https:' + a.xpath('./@href').get()
+            yield item
+
+            yield Request(item['url'],
+                          callback=self.parse_seg,
+                          priority=1,
+                          meta={'seg_id': item['seg_id']})
+
+    def parse_seg(self, response: Response):
+        print('---------详情完事儿了---------------')
+        seg_id = response.meta['seg_id']
+        item = SegDetail()
+        item['seg_id'] = seg_id
+        contents = '<br>'.join(response.css('.read-content p::text').extract())
+        item['content'] = contents.replace('\u3000', '').replace('\n', '')
+        yield item
