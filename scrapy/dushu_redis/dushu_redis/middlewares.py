@@ -5,10 +5,10 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-from scrapy import signals, Request
+from scrapy import signals
 
 
-class QidianSpiderMiddleware(object):
+class DushuRedisSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -56,7 +56,7 @@ class QidianSpiderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class QidianDownloaderMiddleware(object):
+class DushuRedisDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
@@ -68,15 +68,9 @@ class QidianDownloaderMiddleware(object):
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
-    def process_request(self, request: Request, spider):
+    def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-        # 可以设置代理
-        request.meta['proxy'] = 'https://49.70.99.18:9999'
-        # 设置cookies
-        # request.cookies
-
-
 
         # Must either:
         # - return None: continue processing this request
