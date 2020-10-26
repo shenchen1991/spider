@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import uuid
+
 from scrapy import Request
 from scrapy.http import Response
 from scrapy_redis.spiders import RedisSpider
@@ -18,7 +20,11 @@ class GuoxueSpider(RedisSpider):
         divs = response.css('.book-info')
         for div in divs:
             item = {}
+            item['id'] = uuid.uuid4().hex
             item['name'] = div.xpath('./div//img/@alt').get()
             item['cover'] = div.xpath('./div//img/@src').get()
             item['detail_url'] = div.xpath('./div/a/@href').get()
             yield item
+
+        next_url = response.css('.pages').xpath('./a[last()]/@href').get()
+        yield Request('https://www.dushu.com' + next_url, callback=self.parse_item)
